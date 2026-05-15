@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { formatCnpj } from "@/lib/mockData";
-import { SACADOS_LIST, getSacado } from "@/lib/sacados";
+import { SACADOS_LIST } from "@/lib/sacados";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -22,16 +22,16 @@ const Index = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     const clean = cnpj.replace(/\D/g, "");
+
     if (clean.length !== 14) {
       toast.error("Informe um CNPJ válido (14 dígitos).");
       return;
     }
-    if (!getSacado(clean)) {
-      toast.error("CNPJ não encontrado na base de demonstração.");
-      return;
-    }
+
     setLoading(true);
+
     setTimeout(() => {
       setLoading(false);
       navigate(`/resultado/${clean}`);
@@ -41,6 +41,7 @@ const Index = () => {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return SACADOS_LIST;
+
     return SACADOS_LIST.filter(
       (s) =>
         s.companyName.toLowerCase().includes(q) ||
@@ -64,9 +65,11 @@ const Index = () => {
             </span>
             Cockpit de Análise Operacional · FIDC Fluxus
           </div>
+
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
             Nova Análise de Risco
           </h1>
+
           <p className="mx-auto mt-3 max-w-xl text-base text-muted-foreground md:text-lg">
             Consulte um CNPJ e receba o veredito combinando
             <span className="font-semibold text-primary"> Score Padrão</span> e
@@ -83,6 +86,7 @@ const Index = () => {
             <label htmlFor="cnpj" className="mb-2 block text-sm font-semibold text-foreground">
               CNPJ
             </label>
+
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -94,6 +98,7 @@ const Index = () => {
                 className="h-14 pl-12 text-lg font-medium tracking-wide"
               />
             </div>
+
             <Button
               type="submit"
               disabled={loading}
@@ -107,25 +112,32 @@ const Index = () => {
             </Button>
 
             <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-accent" /> Resposta &lt; 5ms</span>
-              <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Dados Núclea</span>
-              <span className="flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5 text-success" /> Score IA Databricks</span>
+              <span className="flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-accent" /> Resposta &lt; 5ms
+              </span>
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Dados Núclea
+              </span>
+              <span className="flex items-center gap-1.5">
+                <TrendingUp className="h-3.5 w-3.5 text-success" /> Score IA Databricks
+              </span>
             </div>
           </form>
         </section>
 
-        {/* Base de sacados */}
+        {/* Base de sacados demonstrativa */}
         <section className="mx-auto mt-12 max-w-5xl">
           <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                 <Database className="h-4 w-4" />
-                Base de Sacados (12 meses)
+                Base de Sacados Demonstrativa
               </div>
               <h2 className="mt-1 text-2xl font-bold text-foreground">
-                {SACADOS_LIST.length} sacados disponíveis para análise
+                {SACADOS_LIST.length} exemplos locais para navegação
               </h2>
             </div>
+
             <div className="relative w-full md:w-80">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -142,6 +154,7 @@ const Index = () => {
               const dot =
                 s.level === "excelente" ? "bg-success" :
                 s.level === "bom" ? "bg-warning" : "bg-destructive";
+
               const tagBg =
                 s.level === "excelente" ? "bg-success/10 text-success" :
                 s.level === "bom" ? "bg-warning/15 text-warning" : "bg-destructive/10 text-destructive";
@@ -158,8 +171,11 @@ const Index = () => {
                         <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} />
                         <div className="truncate font-semibold text-foreground">{s.companyName}</div>
                       </div>
-                      <div className="mt-0.5 truncate text-xs text-muted-foreground">{s.cnpjFormatted} · {s.segmento}</div>
+                      <div className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {s.cnpjFormatted} · {s.segmento}
+                      </div>
                     </div>
+
                     <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${tagBg}`}>
                       {s.perfil}
                     </span>
@@ -180,6 +196,7 @@ const Index = () => {
                         <div className="font-bold text-foreground">{s.scoreFluxo.avgDelay}</div>
                       </div>
                     </div>
+
                     <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
                   </div>
                 </button>
