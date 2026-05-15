@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft, Building2, CheckCircle2, AlertTriangle, XCircle,
@@ -13,6 +13,7 @@ import { Slider } from "@/components/ui/slider";
 import { Header } from "@/components/Header";
 import type { RiskLevel } from "@/lib/mockData";
 import { getSacado } from "@/lib/sacados";
+import { analisarCnpj } from "@/services/api";
 
 const levelStyles: Record<RiskLevel, {
   verdictBg: string; verdictBorder: string; iconWrap: string; icon: JSX.Element;
@@ -71,15 +72,85 @@ const formatBRL = (n: number) =>
   n >= 1_000_000 ? `R$${(n / 1_000_000).toFixed(1)}M` :
   n >= 1_000 ? `R$${(n / 1_000).toFixed(0)}k` : `R$${n}`;
 
+const isValidResultData = (value: unknown): value is NonNullable<ReturnType<typeof getSacado>> => {
+  const item = value as NonNullable<ReturnType<typeof getSacado>> | null;
+  return Boolean(
+    item &&
+      item.companyName &&
+      item.cnpjFormatted &&
+      item.verdict &&
+      Array.isArray(item.historico) &&
+      item.scorePadrao &&
+      item.scoreFluxo
+  );
+};
+
 const Result = () => {
   const { cnpj } = useParams<{ cnpj: string }>();
   const navigate = useNavigate();
-  const data = useMemo(() => (cnpj ? getSacado(cnpj) : null), [cnpj]);
+  const [data, setData] = useState<NonNullable<ReturnType<typeof getSacado>> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [apiWarning, setApiWarning] = useState<string | null>(null);
   const [view, setView] = useState<ChartView>("scores");
 
   useEffect(() => {
-    if (cnpj && !data) navigate("/", { replace: true });
-  }, [cnpj, data, navigate]);
+    if (!cnpj) {
+      navigate("/", { replace: true });
+      return;
+    }
+
+    let active = true;
+
+    async function carregarResultado() {
+      setLoading(true);
+      setApiWarning(null);
+
+      try {
+        const apiData = await analisarCnpj(cnpj);
+
+        if (isValidResultData(apiData)) {
+          if (active) setData(apiData);
+          return;
+        }
+
+        throw new Error("A API respondeu, mas o formato dos dados ainda não está compatível com a tela.");
+      } catch (error) {
+        console.error("Erro ao consultar API. Usando mock como fallback:", error);
+
+        const fallbackData = getSacado(cnpj);
+
+        if (!active) return;
+
+        if (fallbackData) {
+          setData(fallbackData);
+          setApiWarning("API consultada, mas esta tela ainda está exibindo dados mockados como fallback.");
+        } else {
+          navigate("/", { replace: true });
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    carregarResultado();
+
+    return () => {
+      active = false;
+    };
+  }, [cnpj, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen gradient-app">
+        <Header />
+        <main className="container max-w-6xl py-8 md:py-10">
+          <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground shadow-card">
+            Consultando API e carregando análise...
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   if (!data) return null;
   const s = levelStyles[data.level];
@@ -95,6 +166,12 @@ const Result = () => {
         >
           <ArrowLeft className="h-4 w-4" /> Voltar para busca
         </Link>
+
+        {apiWarning && (
+          <div className="mb-5 rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm font-medium text-warning">
+            {apiWarning}
+          </div>
+        )}
 
         {/* Company */}
         <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-card md:p-6">
