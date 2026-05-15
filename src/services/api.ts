@@ -15,5 +15,5 @@ export async function apiGet(endpoint: string) {
 }
 
 export async function analisarCnpj(cnpj: string) {
-  return apiGet(`/analisar/${cnpj}`);
+  return apiGet(`/sacado/${cnpj}`);
 }
