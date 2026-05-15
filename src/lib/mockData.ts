@@ -9,7 +9,7 @@ export interface AnalysisData {
     title: string;
     badge: string;
     description: string;
-    probability: number;  // % aprovação / risco
+    probability: number;
     confidence: number;
     risk: string;
   };
@@ -31,7 +31,22 @@ export interface AnalysisData {
 }
 
 export const formatCnpj = (raw: string) => {
-  const d = raw.replace(/\D/g, "").slice(0, 14).padEnd(14, "0");
+  const d = raw.replace(/\D/g, "").slice(0, 14);
+
+  if (d.length <= 2) return d;
+
+  if (d.length <= 5) {
+    return `${d.slice(0, 2)}.${d.slice(2)}`;
+  }
+
+  if (d.length <= 8) {
+    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
+  }
+
+  if (d.length <= 12) {
+    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
+  }
+
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12, 14)}`;
 };
 
@@ -74,6 +89,7 @@ export const MOCK_DATA: Record<string, AnalysisData> = {
       ],
     },
   },
+
   "44555666000122": {
     cnpj: "44555666000122",
     cnpjFormatted: "44.555.666/0001-22",
@@ -112,6 +128,7 @@ export const MOCK_DATA: Record<string, AnalysisData> = {
       ],
     },
   },
+
   "77888999000133": {
     cnpj: "77888999000133",
     cnpjFormatted: "77.888.999/0001-33",
