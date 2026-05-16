@@ -122,6 +122,11 @@ const Result = () => {
             ? "bom"
             : "mau";
 
+        const perfilExibicao =
+          level === "mau"
+            ? "Perfil Ruim"
+            : String(apiData.status ?? "Análise via API");
+
         const historicoAtual = [
           {
             mes: "Atual",
@@ -139,12 +144,12 @@ const Result = () => {
           companyName: String(apiData.razao_social ?? "Sacado consultado"),
           level,
           verdict: {
-            title: String(apiData.status ?? "Análise concluída"),
-            badge: String(apiData.status ?? "Análise via API"),
+            title: perfilExibicao,
+            badge: perfilExibicao,
             description: `Consulta realizada na API real. Score padrão: ${scoreDefault}. Score fluxo: ${scoreFluxo}. Média de atraso: ${mediaAtraso} dias.`,
             probability: Math.min(99, Math.max(1, Math.round(scoreFluxo / 10))),
             confidence: 89,
-            risk: String(apiData.status ?? "Análise via API"),
+            risk: perfilExibicao,
           },
           scorePadrao: {
             value: scoreDefault,
@@ -170,8 +175,8 @@ const Result = () => {
             ],
           },
           segmento: "Análise via API",
-          perfil: String(apiData.status ?? "Análise via API"),
-          insightIA: `A IA identificou o perfil "${apiData.status ?? "Análise via API"}" para este sacado. A média de atraso é de ${mediaAtraso} dias e o deságio sugerido é de ${desagio.toFixed(2)}%.`,
+          perfil: perfilExibicao,
+          insightIA: `A IA identificou o perfil "${perfilExibicao}" para este sacado. A média de atraso é de ${mediaAtraso} dias e o deságio sugerido é de ${desagio.toFixed(2)}%.`,
           liquidez: 0.79,
           desagio,
           historico: historicoAtual,
