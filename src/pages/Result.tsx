@@ -114,7 +114,7 @@ const Result = () => {
         const desagio = Number(apiData.desagio_sugerido ?? 0);
 
         const level: RiskLevel =
-          scoreFluxo >= 700 ? "mau" : scoreFluxo >= 400 ? "bom" : "excelente";
+          scoreFluxo >= 700 ? "excelente" : scoreFluxo >= 400 ? "bom" : "mau";
 
         const historicoAtual = [
           {
@@ -420,7 +420,6 @@ const Result = () => {
                   </div>
                   <p className="mt-2 text-sm opacity-95">{data.scoreFluxo.label}</p>
                 </div>
-                {/* Para risco: Alta = ruim (vermelho), Baixa = bom (verde) — invertido */}
                 <TrendIcon t={data.scoreFluxo.trend} invert />
               </div>
             </header>
@@ -451,7 +450,6 @@ const Result = () => {
           </article>
         </section>
 
-        {/* Simulador de Deságio */}
         <DesagioSimulator
           desagio={data.desagio}
           level={data.level}
@@ -552,10 +550,7 @@ const CustomTooltip = ({
   );
 };
 
-// ============================================================
-// Simulador de Deságio — A "Máquina de Dinheiro" do FIDC
-// ============================================================
-const TAXA_MERCADO_PADRAO = 2.85; // % a.m. — taxa cega de mercado (sem Fluxus)
+const TAXA_MERCADO_PADRAO = 2.85;
 
 const DesagioSimulator = ({
   desagio,
