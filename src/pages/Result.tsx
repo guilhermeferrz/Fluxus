@@ -114,7 +114,13 @@ const Result = () => {
         const desagio = Number(apiData.desagio_sugerido ?? 0);
 
         const level: RiskLevel =
-          scoreFluxo >= 700 ? "excelente" : scoreFluxo >= 400 ? "bom" : "mau";
+          scoreDefault < 400
+            ? "mau"
+            : scoreFluxo >= 700
+            ? "excelente"
+            : scoreFluxo >= 400
+            ? "bom"
+            : "mau";
 
         const historicoAtual = [
           {
